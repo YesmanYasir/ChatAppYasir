@@ -1,0 +1,178 @@
+﻿@{
+    ViewBag.Title = "Chat";
+}
+
+<h2>Chat Application</h2>
+
+<div>
+    <div id="userList" style="float: left;">
+        <h3>Users</h3>
+        <input type="text" id="nickname" placeholder="Enter nickname" />
+        <button id="joinBtn">Join</button>
+        <ul id="userNames"> </ul>
+    </div>
+   
+
+
+    <div id="chatArea" style="float: left; margin-left: 20px;background-color: #ffff; 
+  ">
+        <h3>Chat Area</h3>
+        <ul id="messages"></ul>
+        <input type="text" id="message" placeholder="Type a message" style='background-color: #dee2e6;
+          width:550px; height:50px;' />
+        <button id="sendBtn">Send</button>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+        var nickname = "";
+        
+       
+
+            // Join the chat background-image: url("/wwwroot/yeye.png");
+            $("#joinBtn").click(function () {
+                nickname = $("#nickname").val();
+                $("#nickname").val("");
+
+                $.ajax({
+                    url: "/Chat/CreateUser",
+                    type: "POST",
+                    data: { name: nickname },
+                    success: function (response) {
+                        if (response.success) {
+                            /*$("#userNames").append("<li><a href='#' class='userLink'>" + response.name + "</a></li>");
+                            // Optionally, you can trigger the getUsers function to update the user list*/
+                           
+                            getUsers();
+                        } else {
+                            console.log("Error creating user:", response.error);
+                        }
+                    },
+                    error: function (error) {
+                        console.log("Error creating user:", error);
+                    }
+                });
+
+            });
+
+
+            function getUsers() {
+                $.ajax({
+                    url: "/Chat/GetUsers",
+                    type: "GET",
+                    success: function (response) {
+                        $("#userNames").empty();
+                        $.each(response.userNames, function (index, userName) {
+                            $("#userNames").append("<li><a href='#' class='userLink'>" + userName + "</a></li>");
+                        });
+                    },
+                    error: function (error) {
+                        console.log("Error retrieving users:", error);
+                    }
+                });
+            }
+
+
+
+
+    
+    function sendMessage() {
+        var message = $("#message").val();
+               // var sender = $("#nickname").val();
+       //ik wil mijn messages zien via en get ajax call  $("#messages").append("<li><strong>" + currentUser + "</strong>: " + message + "</li>");
+      /*  $("#message").val("");
+        $("#joinBtn").click(function () {
+                    
+                    $("#nickname").val("");*/
+
+        
+        $.ajax({
+            url: "/Chat/PostMessage",
+            type: "POST",
+            data: {
+                sender:nickname,
+                message: message
+            },
+            success: function (response) {
+                console.log("Message logged successfully.");
+                getChatMessages();
+                        $("#message").val("");
+            },
+            error: function (error) {
+                console.log("Error logging message:", error);
+            }
+        });
+    }
+
+    $("#sendBtn").click(function () {
+        sendMessage();
+    });
+            //  new messages
+            function getChatMessages() {
+                $.ajax({
+                    url: "/Chat/GetMessagesPublic",
+                    type: "GET",
+                    success: function (response) {
+                        if (response.success) {
+                            var chatMessages = response.chatMessages;
+                            var $messagesList = $("#messages");
+
+                            
+                            $messagesList.empty();
+
+                            /*
+                            ik heb ook debuggers gezet normale gezien die get call hier niet aan het werken als ik messages in privateChat wil krijgen maar het is 
+                            echt raar je mag chatMessages  zien als returned object normale gezien hebben we die objects moeten zien allen we public chat gebruiken en wanneer die call 
+                            gebruikt word,dat geeft geen foute of die is niet getoond op mijn pagina ook maar het is wel raar.
+                            */
+                            $.each(chatMessages, function (index, message) {
+                                $messagesList.append("<li>" + message.sender + ": " + message.message + "</li>");
+                            });
+                        } else {
+                            console.log("Error retrieving chat messages:", response.error);
+                        }
+                    },
+                    error: function (error) {
+                        console.log("Error retrieving chat messages:", error);
+                    }
+                });
+            }
+
+
+
+    
+    $(document).on("click", ".userLink", function () {
+        var clickedUser = $(this).text();
+        
+        $("#messages").empty();
+
+                // Navigate to the private chat
+                if (true) {
+                    var encodedNickname = encodeURIComponent(nickname);
+                    var encodedClickedUser = encodeURIComponent(clickedUser);
+
+                    var url = "/Chat/PrivateChat?nickname=" + encodedNickname + "&clickedUser=" + encodedClickedUser;
+                    window.open(url, "_blank");
+                }
+
+    });
+
+    
+    $("#message").keypress(function (e) {
+        if (e.which === 13) { // Enter key
+            sendMessage();
+            return false; 
+        }
+    });
+
+        
+});
+
+
+
+    </script>
+}
+

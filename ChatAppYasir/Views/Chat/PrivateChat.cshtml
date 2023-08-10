@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "PrivateChat";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+ 
+
+    <meta name="viewport" content="width=device-width" />
+    <title>Private Chat</title>
+</head>
+<body>
+    <div id="chatContainer">
+        <h3>Private Chat</h3>
+        <div id="messagesContainer" style="float: left; margin-left: 20px;background-color: #ffff;
+  ">
+            <h3>Chat Area</h3>
+            <ul id="messages1"></ul>
+        </div>
+        <input type="text" id="messageInput" placeholder="Type your message" />
+        <button id="sendBtn">Send</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   
+        
+        <script>
+            $(function () {
+
+            var nickname = decodeURIComponent("@(ViewBag.Nickname)");
+            var clickedUser = decodeURIComponent("@(ViewBag.ClickedUser)");
+
+
+
+
+
+
+            function sendMessage() {
+                var message = $("#messageInput").val();
+                    $.ajax({
+                    url: "/Chat/PostMessagePrivate",
+                        type: "POST",
+                        data: {
+                            sender: nickname,
+                            message: message,
+                            receiver:clickedUser
+                        },
+                        success: function (response) {
+                            console.log("Message sent successfully.");
+                        checkNewMessages();
+                        },
+                        error: function (error) {
+                            console.log("Error sending message:", error);
+                        }
+                    });
+                }
+            $("#sendBtn").click(function () {
+                sendMessage();
+            });
+            $("#messageInput").keypress(function (e) {
+                if (e.which === 13) { // Enter key
+                    sendMessage();
+                    return false;
+                }
+            });
+
+               
+
+               
+
+                // check for new messages
+                function checkNewMessages() {
+                    $.ajax({
+                    url: "/Chat/GetChatMessagesPrivate",
+                        type: "GET",
+                    data: {
+                        sender: nickname,
+                       
+                        receiver: clickedUser
+                    },
+                       
+                        success: function (response) {
+                            if (response.success) {
+                            var $messagesList = $("#messages1");
+                            var chatMessages = response.chatMessages;
+                            $messagesList.empty();
+
+
+                            $.each(chatMessages, function (index, message) {
+                                
+                                $messagesList.append("<li>" + message.sender + ": " + message.message + "</li>");
+                            });
+                                
+                            }
+                        },
+                        error: function (error) {
+                            console.log("Error checking for new messages:", error);
+                        }
+                     
+                            
+                        
+                    });
+                }
+
+            //setTimeout(checkNewMessages, 5000);
+
+        });
+    </script>
+
+    
+
+    
+</body>
+</html>

@@ -1,0 +1,4 @@
+﻿{"Sender":"sup ","Message":"naber ","SentTime":"0001-01-01T00:00:00"}
+{"Sender":"yasir","Message":"iyilik","SentTime":"0001-01-01T00:00:00"}
+{"Sender":"sup ","Message":"guzellikk ","SentTime":"0001-01-01T00:00:00"}
+{"Sender":"Zort","Message":"Merhaba Hello Dag ","SentTime":"2023-05-20T21:49:59.224611Z"}
